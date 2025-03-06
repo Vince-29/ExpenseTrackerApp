@@ -2,10 +2,20 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-const ExpenseItem = ({ expense, onPress, onEdit, onDelete }) => {
+function ExpenseItem({ expense, onPress, onEdit, onDelete }) {
+	// This function stops the tap event from reaching the parent component
+	function handleButtonPress(event, action) {
+		// Stop event from "bubbling up" to parent
+		event.stopPropagation();
+		// Execute the action
+		action();
+	}
+
 	return (
+		// Make the whole item tappable
 		<TouchableOpacity style={styles.container} onPress={onPress}>
-			<View style={styles.content}>
+			<View style={styles.mainContent}>
+				{/* Expense name and amount */}
 				<View style={styles.header}>
 					<Text style={styles.name}>{expense.name}</Text>
 					<Text style={styles.amount}>
@@ -13,6 +23,7 @@ const ExpenseItem = ({ expense, onPress, onEdit, onDelete }) => {
 					</Text>
 				</View>
 
+				{/* Show description if it exists */}
 				{expense.description ? (
 					<Text
 						style={styles.description}
@@ -24,46 +35,44 @@ const ExpenseItem = ({ expense, onPress, onEdit, onDelete }) => {
 				) : null}
 			</View>
 
-			<View style={styles.actions}>
+			{/* Edit and Delete buttons */}
+			<View style={styles.buttons}>
 				<TouchableOpacity
 					style={styles.editButton}
-					onPress={(e) => {
-						e.stopPropagation(); // Prevent triggering the parent onPress
-						onEdit();
-					}}
+					onPress={(e) => handleButtonPress(e, onEdit)}
 				>
 					<Text style={styles.editButtonText}>Edit</Text>
 				</TouchableOpacity>
 
 				<TouchableOpacity
 					style={styles.deleteButton}
-					onPress={(e) => {
-						e.stopPropagation(); // Prevent triggering the parent onPress
-						onDelete();
-					}}
+					onPress={(e) => handleButtonPress(e, onDelete)}
 				>
 					<Text style={styles.deleteButtonText}>Delete</Text>
 				</TouchableOpacity>
 			</View>
 		</TouchableOpacity>
 	);
-};
+}
 
 export default ExpenseItem;
 
+// Styles for our component
 const styles = StyleSheet.create({
 	container: {
 		backgroundColor: "#fff",
 		borderRadius: 8,
 		marginBottom: 12,
 		padding: 15,
+		// Add shadow for iOS
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.2,
 		shadowRadius: 1.41,
+		// Add shadow for Android
 		elevation: 2,
 	},
-	content: {
+	mainContent: {
 		marginBottom: 10,
 	},
 	header: {
@@ -75,18 +84,18 @@ const styles = StyleSheet.create({
 	name: {
 		fontSize: 16,
 		fontWeight: "bold",
-		flex: 1,
+		flex: 1, // Take up available space
 	},
 	amount: {
 		fontSize: 16,
 		fontWeight: "bold",
-		color: "#e53935",
+		color: "#e53935", // Red color
 	},
 	description: {
 		fontSize: 14,
 		color: "#666",
 	},
-	actions: {
+	buttons: {
 		flexDirection: "row",
 		justifyContent: "flex-end",
 	},
@@ -103,10 +112,10 @@ const styles = StyleSheet.create({
 	deleteButton: {
 		paddingHorizontal: 12,
 		paddingVertical: 6,
-		backgroundColor: "#ffebee",
+		backgroundColor: "#ffebee", // Light red
 		borderRadius: 4,
 	},
 	deleteButtonText: {
-		color: "#c62828",
+		color: "#c62828", // Dark red
 	},
 });

@@ -14,77 +14,71 @@ import ExpenseItem from "./component/ExpenseItem";
 import ExpenseDetail from "./component/ExpenseDetail";
 
 export default function App() {
-	// Main state to store all expenses
 	const [expenses, setExpenses] = useState([]);
+	const [showInputForm, setShowInputForm] = useState(false);
+	const [showDetailView, setShowDetailView] = useState(false);
+	const [currentExpense, setCurrentExpense] = useState(null);
+	const [viewingExpense, setViewingExpense] = useState(null);
 
-	// State to control the ExpenseInput modal visibility
-	const [inputModalVisible, setInputModalVisible] = useState(false);
-
-	// State to control the ExpenseDetail modal visibility
-	const [detailModalVisible, setDetailModalVisible] = useState(false);
-
-	// State to track if we're editing an existing expense
-	const [editingExpense, setEditingExpense] = useState(null);
-
-	// State to track which expense to show in detail view
-	const [selectedExpense, setSelectedExpense] = useState(null);
-
-	// Function to add a new expense
-	const addExpense = (expense) => {
-		// Generate a unique ID for the expense
+	// Adding new expense
+	function handleAddExpense(expense) {
 		const newExpense = {
 			...expense,
-			id: Date.now().toString(),
+			id: Date.now().toString(), // Use timestamp as ID
 		};
+		const newExpensesList = [...expenses, newExpense];
+		setExpenses(newExpensesList);
 
-		setExpenses([...expenses, newExpense]);
-		setInputModalVisible(false);
-	};
+		setShowInputForm(false);
+	}
 
-	// Function to update an existing expense
-	const updateExpense = (updatedExpense) => {
-		setExpenses(
-			expenses.map((expense) =>
-				expense.id === updatedExpense.id ? updatedExpense : expense
-			)
-		);
-		setInputModalVisible(false);
-		setEditingExpense(null);
+	// Update existing expense
+	function handleUpdateExpense(updatedExpense) {
+		const updatedExpenses = expenses.map((expense) => {
+			if (expense.id === updatedExpense.id) {
+				return updatedExpense;
+			}
+			return expense;
+		});
 
-		// Update selected expense if it's the one being edited
-		if (selectedExpense && selectedExpense.id === updatedExpense.id) {
-			setSelectedExpense(updatedExpense);
+		setExpenses(updatedExpenses);
+		setShowInputForm(false);
+		setCurrentExpense(null);
+
+		if (viewingExpense && viewingExpense.id === updatedExpense.id) {
+			setViewingExpense(updatedExpense);
 		}
-	};
+	}
 
-	// Function to delete an expense
-	const deleteExpense = (id) => {
-		setExpenses(expenses.filter((expense) => expense.id !== id));
+	// Delete an expense
+	function handleDeleteExpense(id) {
+		// Remove the expense with this ID
+		const remainingExpenses = expenses.filter((expense) => expense.id !== id);
+		setExpenses(remainingExpenses);
 
-		// Close detail modal if the deleted expense is currently selected
-		if (selectedExpense && selectedExpense.id === id) {
-			setDetailModalVisible(false);
-			setSelectedExpense(null);
+		if (viewingExpense && viewingExpense.id === id) {
+			setShowDetailView(false);
+			setViewingExpense(null);
 		}
-	};
+	}
 
-	// Function to start editing an expense
-	const handleEdit = (expense) => {
-		setEditingExpense(expense);
-		setInputModalVisible(true);
-	};
+	// Expense editing function
+	function startEditing(expense) {
+		setCurrentExpense(expense);
+		setShowInputForm(true);
+	}
 
-	// Function to show expense details
-	const handleExpensePress = (expense) => {
-		setSelectedExpense(expense);
-		setDetailModalVisible(true);
-	};
+	// Showwing expense details
+	function showExpenseDetails(expense) {
+		setViewingExpense(expense);
+		setShowDetailView(true);
+	}
 
-	// Calculate total expenses
-	const totalExpenses = expenses.reduce(
-		(sum, expense) => sum + parseFloat(expense.amount || 0),
-		0
-	);
+	// Calculation total of all expenses
+	let total = 0;
+	for (let i = 0; i < expenses.length; i++) {
+		total += parseFloat(expenses[i].amount || 0);
+	}
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -92,12 +86,12 @@ export default function App() {
 
 			<View style={styles.header}>
 				<Text style={styles.title}>Expense Tracker</Text>
-				<Text style={styles.total}>Total: ₱{totalExpenses.toFixed(2)}</Text>
+				<Text style={styles.total}>Total: ₱{total.toFixed(2)}</Text>
 			</View>
 
 			{expenses.length === 0 ? (
 				<View style={styles.emptyContainer}>
-					<Text style={styles.emptyText}>No expenses yet. Add one!</Text>
+					<Text style={styles.emptyText}>No expenses yet</Text>
 				</View>
 			) : (
 				<FlatList
@@ -106,9 +100,9 @@ export default function App() {
 					renderItem={({ item }) => (
 						<ExpenseItem
 							expense={item}
-							onPress={() => handleExpensePress(item)}
-							onEdit={() => handleEdit(item)}
-							onDelete={() => deleteExpense(item.id)}
+							onPress={() => showExpenseDetails(item)}
+							onEdit={() => startEditing(item)}
+							onDelete={() => handleDeleteExpense(item.id)}
 						/>
 					)}
 					contentContainerStyle={styles.list}
@@ -118,34 +112,46 @@ export default function App() {
 			<TouchableOpacity
 				style={styles.addButton}
 				onPress={() => {
-					setEditingExpense(null);
-					setInputModalVisible(true);
+					setCurrentExpense(null);
+					setShowInputForm(true);
 				}}
 			>
 				<Text style={styles.addButtonText}>+</Text>
 			</TouchableOpacity>
 
 			<ExpenseInput
-				visible={inputModalVisible}
+				visible={showInputForm}
 				onClose={() => {
-					setInputModalVisible(false);
-					setEditingExpense(null);
+					setShowInputForm(false);
+					setCurrentExpense(null);
 				}}
-				onSave={editingExpense ? updateExpense : addExpense}
-				expense={editingExpense}
+				onSave={(expense) => {
+					if (currentExpense) {
+						handleUpdateExpense(expense);
+					} else {
+						handleAddExpense(expense);
+					}
+				}}
+				expense={currentExpense}
 			/>
 
 			<ExpenseDetail
-				visible={detailModalVisible}
-				expense={selectedExpense}
-				onClose={() => setDetailModalVisible(false)}
-				onEdit={() => handleEdit(selectedExpense)}
-				onDelete={() => deleteExpense(selectedExpense.id)}
+				visible={showDetailView}
+				expense={viewingExpense}
+				onClose={() => setShowDetailView(false)}
+				onEdit={() => {
+					setShowDetailView(false);
+					startEditing(viewingExpense);
+				}}
+				onDelete={() => {
+					handleDeleteExpense(viewingExpense.id);
+				}}
 			/>
 		</SafeAreaView>
 	);
 }
 
+// Styles
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

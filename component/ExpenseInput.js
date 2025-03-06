@@ -1,3 +1,4 @@
+// components/ExpenseInput.js
 import React, { useState, useEffect } from "react";
 import {
 	Modal,
@@ -10,52 +11,63 @@ import {
 	Keyboard,
 } from "react-native";
 
-const ExpenseInput = ({ visible, onClose, onSave, expense }) => {
-	// State for the form inputs
+function ExpenseInput({ visible, onClose, onSave, expense }) {
 	const [name, setName] = useState("");
 	const [amount, setAmount] = useState("");
 	const [description, setDescription] = useState("");
 
-	// Update form when editing an expense
+	// This will run whenever the expense or visible props change
 	useEffect(() => {
-		if (expense) {
+		// If we have an expense to edit and the form is visible
+		if (expense && visible) {
+			// Fill in the form with the expense data
 			setName(expense.name);
 			setAmount(expense.amount.toString());
 			setDescription(expense.description);
-		} else {
-			resetForm();
+		} else if (visible) {
+			// Otherwise, if the form just became visible, clear it
+			clearForm();
 		}
 	}, [expense, visible]);
 
 	// Reset the form to blank values
-	const resetForm = () => {
+	function clearForm() {
 		setName("");
 		setAmount("");
 		setDescription("");
-	};
+	}
 
-	// Handle form submission
-	const handleSave = () => {
+	// Handle when user taps the Save button
+	function handleSave() {
 		// Basic validation
-		if (!name.trim() || !amount.trim()) {
-			alert("Please enter both a name and amount");
+		if (name.trim() === "") {
+			alert("Please enter an expense name");
 			return;
 		}
 
+		if (amount.trim() === "") {
+			alert("Please enter an amount");
+			return;
+		}
+
+		// Prepare the expense data
 		const expenseData = {
-			name,
-			amount,
-			description,
+			name: name,
+			amount: amount,
+			description: description,
 		};
 
-		// If editing, keep the ID
+		// If we're editing an existing expense, include its ID
 		if (expense) {
 			expenseData.id = expense.id;
 		}
 
+		// Send the data back to the parent component
 		onSave(expenseData);
-		resetForm();
-	};
+
+		// Clear the form
+		clearForm();
+	}
 
 	return (
 		<Modal
@@ -64,23 +76,27 @@ const ExpenseInput = ({ visible, onClose, onSave, expense }) => {
 			visible={visible}
 			onRequestClose={onClose}
 		>
+			{/* This allows us to dismiss the keyboard when tapping outside inputs */}
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<View style={styles.modalOverlay}>
 					<View style={styles.modalContainer}>
+						{/* Form header */}
 						<Text style={styles.modalTitle}>
-							{expense ? "Edit Expense" : "Add Expense"}
+							{expense ? "Edit Expense" : "Add New Expense"}
 						</Text>
 
+						{/* Name input */}
 						<View style={styles.inputContainer}>
 							<Text style={styles.label}>Name</Text>
 							<TextInput
 								style={styles.input}
-								placeholder="Expense name"
+								placeholder="Enter expense name"
 								value={name}
-								onChangeText={setName}
+								onChangeText={(text) => setName(text)}
 							/>
 						</View>
 
+						{/* Amount input */}
 						<View style={styles.inputContainer}>
 							<Text style={styles.label}>Amount (₱)</Text>
 							<TextInput
@@ -88,22 +104,24 @@ const ExpenseInput = ({ visible, onClose, onSave, expense }) => {
 								placeholder="0.00"
 								keyboardType="numeric"
 								value={amount}
-								onChangeText={setAmount}
+								onChangeText={(text) => setAmount(text)}
 							/>
 						</View>
 
+						{/* Description input */}
 						<View style={styles.inputContainer}>
 							<Text style={styles.label}>Description (optional)</Text>
 							<TextInput
 								style={[styles.input, styles.textArea]}
-								placeholder="Add details about this expense"
+								placeholder="Enter details about this expense"
 								value={description}
-								onChangeText={setDescription}
-								multiline
+								onChangeText={(text) => setDescription(text)}
+								multiline={true}
 								numberOfLines={3}
 							/>
 						</View>
 
+						{/* Buttons */}
 						<View style={styles.buttonContainer}>
 							<TouchableOpacity
 								style={[styles.button, styles.cancelButton]}
@@ -126,16 +144,17 @@ const ExpenseInput = ({ visible, onClose, onSave, expense }) => {
 			</TouchableWithoutFeedback>
 		</Modal>
 	);
-};
+}
 
 export default ExpenseInput;
 
+// Styles for our component
 const styles = StyleSheet.create({
 	modalOverlay: {
 		flex: 1,
+		backgroundColor: "rgba(0, 0, 0, 0.5)",
 		justifyContent: "center",
 		alignItems: "center",
-		backgroundColor: "rgba(0, 0, 0, 0.5)",
 	},
 	modalContainer: {
 		width: "90%",
@@ -177,7 +196,6 @@ const styles = StyleSheet.create({
 	},
 	buttonContainer: {
 		flexDirection: "row",
-		justifyContent: "space-between",
 		marginTop: 10,
 	},
 	button: {
