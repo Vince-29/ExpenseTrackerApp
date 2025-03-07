@@ -56,7 +56,7 @@ function ExpenseDetail({ visible, expense, onClose, onEdit, onDelete }) {
 							<Text style={styles.date}>{getDateFromId(expense.id)}</Text>
 						</View>
 					</ScrollView>
-					//Edit button
+					{/* Edit button */}
 					<View style={styles.buttonContainer}>
 						<TouchableOpacity
 							style={[styles.button, styles.editButton]}
@@ -67,7 +67,7 @@ function ExpenseDetail({ visible, expense, onClose, onEdit, onDelete }) {
 						>
 							<Text style={styles.editButtonText}>Edit</Text>
 						</TouchableOpacity>
-						//Delete button
+						{/* Delete button */}
 						<TouchableOpacity
 							style={[styles.button, styles.deleteButton]}
 							onPress={() => {
@@ -78,7 +78,7 @@ function ExpenseDetail({ visible, expense, onClose, onEdit, onDelete }) {
 							<Text style={styles.deleteButtonText}>Delete</Text>
 						</TouchableOpacity>
 					</View>
-					//Close button
+					{/* Close button */}
 					<TouchableOpacity style={styles.closeButton} onPress={onClose}>
 						<Text style={styles.closeButtonText}>Close</Text>
 					</TouchableOpacity>
