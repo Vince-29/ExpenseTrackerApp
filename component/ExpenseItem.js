@@ -1,21 +1,16 @@
-// components/ExpenseItem.js
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 function ExpenseItem({ expense, onPress, onEdit, onDelete }) {
-	// This function stops the tap event from reaching the parent component
 	function handleButtonPress(event, action) {
-		// Stop event from "bubbling up" to parent
 		event.stopPropagation();
-		// Execute the action
+
 		action();
 	}
 
 	return (
-		// Make the whole item tappable
 		<TouchableOpacity style={styles.container} onPress={onPress}>
 			<View style={styles.mainContent}>
-				{/* Expense name and amount */}
 				<View style={styles.header}>
 					<Text style={styles.name}>{expense.name}</Text>
 					<Text style={styles.amount}>
@@ -23,7 +18,6 @@ function ExpenseItem({ expense, onPress, onEdit, onDelete }) {
 					</Text>
 				</View>
 
-				{/* Show description if it exists */}
 				{expense.description ? (
 					<Text
 						style={styles.description}
@@ -57,19 +51,17 @@ function ExpenseItem({ expense, onPress, onEdit, onDelete }) {
 
 export default ExpenseItem;
 
-// Styles for our component
+//Styles
 const styles = StyleSheet.create({
 	container: {
 		backgroundColor: "#fff",
 		borderRadius: 8,
 		marginBottom: 12,
 		padding: 15,
-		// Add shadow for iOS
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.2,
 		shadowRadius: 1.41,
-		// Add shadow for Android
 		elevation: 2,
 	},
 	mainContent: {
@@ -84,12 +76,12 @@ const styles = StyleSheet.create({
 	name: {
 		fontSize: 16,
 		fontWeight: "bold",
-		flex: 1, // Take up available space
+		flex: 1,
 	},
 	amount: {
 		fontSize: 16,
 		fontWeight: "bold",
-		color: "#e53935", // Red color
+		color: "#e53935",
 	},
 	description: {
 		fontSize: 14,
@@ -112,10 +104,10 @@ const styles = StyleSheet.create({
 	deleteButton: {
 		paddingHorizontal: 12,
 		paddingVertical: 6,
-		backgroundColor: "#ffebee", // Light red
+		backgroundColor: "#ffebee",
 		borderRadius: 4,
 	},
 	deleteButtonText: {
-		color: "#c62828", // Dark red
+		color: "#c62828",
 	},
 });

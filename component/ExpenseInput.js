@@ -1,4 +1,3 @@
-// components/ExpenseInput.js
 import React, { useState, useEffect } from "react";
 import {
 	Modal,
@@ -16,16 +15,12 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 	const [amount, setAmount] = useState("");
 	const [description, setDescription] = useState("");
 
-	// This will run whenever the expense or visible props change
 	useEffect(() => {
-		// If we have an expense to edit and the form is visible
 		if (expense && visible) {
-			// Fill in the form with the expense data
 			setName(expense.name);
 			setAmount(expense.amount.toString());
 			setDescription(expense.description);
 		} else if (visible) {
-			// Otherwise, if the form just became visible, clear it
 			clearForm();
 		}
 	}, [expense, visible]);
@@ -37,9 +32,8 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 		setDescription("");
 	}
 
-	// Handle when user taps the Save button
+	// om save button
 	function handleSave() {
-		// Basic validation
 		if (name.trim() === "") {
 			alert("Please enter an expense name");
 			return;
@@ -50,19 +44,17 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 			return;
 		}
 
-		// Prepare the expense data
 		const expenseData = {
 			name: name,
 			amount: amount,
 			description: description,
 		};
 
-		// If we're editing an existing expense, include its ID
+		//include ID if editing existing expense
 		if (expense) {
 			expenseData.id = expense.id;
 		}
 
-		// Send the data back to the parent component
 		onSave(expenseData);
 
 		// Clear the form
@@ -76,16 +68,13 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 			visible={visible}
 			onRequestClose={onClose}
 		>
-			{/* This allows us to dismiss the keyboard when tapping outside inputs */}
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<View style={styles.modalOverlay}>
 					<View style={styles.modalContainer}>
-						{/* Form header */}
 						<Text style={styles.modalTitle}>
 							{expense ? "Edit Expense" : "Add New Expense"}
 						</Text>
 
-						{/* Name input */}
 						<View style={styles.inputContainer}>
 							<Text style={styles.label}>Name</Text>
 							<TextInput
@@ -96,7 +85,6 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 							/>
 						</View>
 
-						{/* Amount input */}
 						<View style={styles.inputContainer}>
 							<Text style={styles.label}>Amount (₱)</Text>
 							<TextInput
@@ -108,7 +96,6 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 							/>
 						</View>
 
-						{/* Description input */}
 						<View style={styles.inputContainer}>
 							<Text style={styles.label}>Description (optional)</Text>
 							<TextInput
@@ -121,7 +108,6 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 							/>
 						</View>
 
-						{/* Buttons */}
 						<View style={styles.buttonContainer}>
 							<TouchableOpacity
 								style={[styles.button, styles.cancelButton]}
@@ -148,7 +134,7 @@ function ExpenseInput({ visible, onClose, onSave, expense }) {
 
 export default ExpenseInput;
 
-// Styles for our component
+//Styles
 const styles = StyleSheet.create({
 	modalOverlay: {
 		flex: 1,
