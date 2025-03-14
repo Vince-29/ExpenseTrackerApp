@@ -12,6 +12,7 @@ import {
 import ExpenseInput from "./component/ExpenseInput";
 import ExpenseItem from "./component/ExpenseItem";
 import ExpenseDetail from "./component/ExpenseDetail";
+import { ExpenseProvider } from "./context/ExpenseContext";
 
 export default function App() {
 	const [expenses, setExpenses] = useState([]);
@@ -81,6 +82,7 @@ export default function App() {
 	}
 
 	return (
+		// <ExpenseProvider>
 		<SafeAreaView style={styles.container}>
 			<StatusBar barStyle="dark-content" />
 
@@ -148,6 +150,7 @@ export default function App() {
 				}}
 			/>
 		</SafeAreaView>
+		// {/* </ExpenseProvider> */}
 	);
 }
 
