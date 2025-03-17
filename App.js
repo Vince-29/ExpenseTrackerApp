@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
 	StyleSheet,
 	Text,
@@ -9,53 +9,51 @@ import {
 	StatusBar,
 } from "react-native";
 
-import ExpenseInput from "./component/ExpenseInput";
-import ExpenseItem from "./component/ExpenseItem";
-import ExpenseDetail from "./component/ExpenseDetail";
-import { ExpenseProvider } from "./context/ExpenseContext";
+import ExpenseInput from "./component/expenses/ExpenseInput";
+import ExpenseItem from "./component/expenses/ExpenseItem";
+import ExpenseDetail from "./component/expenses/ExpenseDetail";
+import { ExpenseProvider, ExpenseContext } from "./context/ExpenseContext";
 
-export default function App() {
-	const [expenses, setExpenses] = useState([]);
+function ExpenseTrackerApp() {
+	const { expenses, total, addExpense, updateExpense, deleteExpense } =
+		useContext(ExpenseContext);
+
 	const [showInputForm, setShowInputForm] = useState(false);
 	const [showDetailView, setShowDetailView] = useState(false);
 	const [currentExpense, setCurrentExpense] = useState(null);
 	const [viewingExpense, setViewingExpense] = useState(null);
 
-	// Adding new expense
-	function handleAddExpense(expense) {
-		const newExpense = {
-			...expense,
-			id: Date.now().toString(), // Use timestamp as ID
-		};
-		const newExpensesList = [...expenses, newExpense];
-		setExpenses(newExpensesList);
-
-		setShowInputForm(false);
+	// editing expense
+	function startEditing(expense) {
+		setCurrentExpense(expense);
+		setShowInputForm(true);
 	}
 
-	// Update existing expense
-	function handleUpdateExpense(updatedExpense) {
-		const updatedExpenses = expenses.map((expense) => {
-			if (expense.id === updatedExpense.id) {
-				return updatedExpense;
-			}
-			return expense;
-		});
+	// showing expense details
+	function showExpenseDetails(expense) {
+		setViewingExpense(expense);
+		setShowDetailView(true);
+	}
 
-		setExpenses(updatedExpenses);
+	// saving an expense
+	function handleSaveExpense(expense) {
+		if (currentExpense) {
+			updateExpense(expense);
+
+			if (viewingExpense && viewingExpense.id === expense.id) {
+				setViewingExpense(expense);
+			}
+		} else {
+			addExpense(expense);
+		}
+
 		setShowInputForm(false);
 		setCurrentExpense(null);
-
-		if (viewingExpense && viewingExpense.id === updatedExpense.id) {
-			setViewingExpense(updatedExpense);
-		}
 	}
 
-	// Delete an expense
+	// deleting expense
 	function handleDeleteExpense(id) {
-		// Remove the expense with this ID
-		const remainingExpenses = expenses.filter((expense) => expense.id !== id);
-		setExpenses(remainingExpenses);
+		deleteExpense(id);
 
 		if (viewingExpense && viewingExpense.id === id) {
 			setShowDetailView(false);
@@ -63,26 +61,7 @@ export default function App() {
 		}
 	}
 
-	// Expense editing function
-	function startEditing(expense) {
-		setCurrentExpense(expense);
-		setShowInputForm(true);
-	}
-
-	// Showwing expense details
-	function showExpenseDetails(expense) {
-		setViewingExpense(expense);
-		setShowDetailView(true);
-	}
-
-	// Calculation total of all expenses
-	let total = 0;
-	for (let i = 0; i < expenses.length; i++) {
-		total += parseFloat(expenses[i].amount || 0);
-	}
-
 	return (
-		// <ExpenseProvider>
 		<SafeAreaView style={styles.container}>
 			<StatusBar barStyle="dark-content" />
 
@@ -127,13 +106,7 @@ export default function App() {
 					setShowInputForm(false);
 					setCurrentExpense(null);
 				}}
-				onSave={(expense) => {
-					if (currentExpense) {
-						handleUpdateExpense(expense);
-					} else {
-						handleAddExpense(expense);
-					}
-				}}
+				onSave={handleSaveExpense}
 				expense={currentExpense}
 			/>
 
@@ -150,7 +123,14 @@ export default function App() {
 				}}
 			/>
 		</SafeAreaView>
-		// {/* </ExpenseProvider> */}
+	);
+}
+
+export default function App() {
+	return (
+		<ExpenseProvider>
+			<ExpenseTrackerApp />
+		</ExpenseProvider>
 	);
 }
 

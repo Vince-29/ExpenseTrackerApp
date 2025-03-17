@@ -1,74 +1,63 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 
+// Create the ExpenseContext
 const ExpenseContext = createContext();
 
-function ExpenseProvider({ children }) {
+const ExpenseProvider = ({ children }) => {
 	const [expenses, setExpenses] = useState([]);
+	const [total, setTotal] = useState(0);
 
-	// Add a new expense
-	function addExpense(expense) {
-		// Create a new expense with ID
+	// Calculate total whenever expenses change
+	useEffect(() => {
+		let sum = 0;
+		for (let i = 0; i < expenses.length; i++) {
+			sum += parseFloat(expenses[i].amount || 0);
+		}
+		setTotal(sum);
+	}, [expenses]);
+
+	// Add new expense
+	const addExpense = (expense) => {
 		const newExpense = {
 			...expense,
-			id: Date.now().toString(),
+			id: Date.now().toString(), // Use timestamp as ID
 		};
-
-		// Add to our expenses list
 		setExpenses([...expenses, newExpense]);
-		return newExpense;
-	}
+	};
 
-	// Update an existing expense
-	function updateExpense(updatedExpense) {
+	// Update existing expense
+	const updateExpense = (updatedExpense) => {
 		const updatedExpenses = expenses.map((expense) => {
 			if (expense.id === updatedExpense.id) {
 				return updatedExpense;
-			} else {
-				return expense;
 			}
+			return expense;
 		});
-
 		setExpenses(updatedExpenses);
-		return updatedExpense;
-	}
+	};
 
 	// Delete an expense
-	function deleteExpense(id) {
-		const filteredExpenses = expenses.filter((expense) => expense.id !== id);
-		setExpenses(filteredExpenses);
-	}
-
-	// Calculate the total of all expenses
-	function getTotal() {
-		let total = 0;
-		for (let i = 0; i < expenses.length; i++) {
-			total += parseFloat(expenses[i].amount || 0);
-		}
-		return total;
-	}
-
-	// These are the values that will be available to components
-	const contextValue = {
-		expenses,
-		addExpense,
-		updateExpense,
-		deleteExpense,
-		getTotal,
+	const deleteExpense = (id) => {
+		const remainingExpenses = expenses.filter((expense) => expense.id !== id);
+		setExpenses(remainingExpenses);
 	};
 
 	return (
-		<ExpenseContext.Provider value={contextValue}>
+		<ExpenseContext.Provider
+			value={{
+				expenses,
+				total,
+				addExpense,
+				updateExpense,
+				deleteExpense,
+			}}
+		>
 			{children}
 		</ExpenseContext.Provider>
 	);
-}
+};
 
-function useExpenses() {
-	const context = useContext(ExpenseContext);
-	if (!context) {
-		throw new Error("useExpenses must be used within an ExpenseProvider");
-	}
-	return context;
-}
+// custom hook
+const useExpenses = () => useContext(ExpenseContext);
 
-export { ExpenseProvider, useExpenses };
+export { ExpenseContext, ExpenseProvider, useExpenses };
